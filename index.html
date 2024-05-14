@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Form with Login</title>
+</head>
+
+<body style="padding-left: 30px;">
+    <form id="loginForm">
+        <h2>Login</h2>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        <button type="submit">Login</button>
+    </form>
+
+    <form id="emailForm" onsubmit="submitForm(event)" style="display: none;">
+        <h2>Send Email</h2>
+	
+	    <input type="hidden" name="api_key" value="api-E4C20C0726194693BF5A78F5E48E3368">
+    
+        <label for="fullname">Recipient Name:</label>
+        <input type="text" id="fullname" name="fullname" style="width: 200px;" required><br><br>
+
+		<label for="to">Recipient Email:</label>
+		<input type="texT" id="to" name = "to" style="width: 200px;" ><br><br>
+ 
+		<label for="templateId">Template ID:</label>        
+		<select id="templateId" name="templateId" style="width: 230px;" required>
+            <option value="">Select Template ID</option>
+            <option value="4416260">1) Initial Outreach A</option>
+            <option value="1741323">1) Initial Outreach B</option>
+            <option value="9557770">2) Follow Up A</option>
+            <option value="0373170">2) Follow Up B</option>
+            <option value="0727549">2) Follow Up 2 A</option>
+            <option value="8623586">2) Follow Up 2 B</option>
+        </select><br><br>
+
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first_name" name="first_name" style="width: 230px;" required disabled><br><br>
+
+        <input type="submit" value="Send Email">
+    </form>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (password === 'aaa') {
+                document.getElementById('emailForm').style.display = 'block';
+                document.getElementById('loginForm').style.display = 'none';
+                alert('Login successful!');
+            } else {
+                alert('Incorrect password!');
+            }
+        });
+    </script>
+
+    <script>
+        function submitForm(event) {
+            event.preventDefault();
+            
+            var sender = "outreach@outreach.peninsulaland.com";
+            var replyTo = "parker@outreach.peninsulaland.com";
+            var recipient = document.getElementById('to').value;
+            var templateId = document.getElementById('templateId').value;
+            var fullname = document.getElementById('fullname').value;
+            var firstName = fullname.split(' ')[0];
+            document.getElementById('first_name').value = firstName;
+
+            const requestData = {
+                api_key: "api-E4C20C0726194693BF5A78F5E48E3368",
+                to: [recipient],
+                sender: sender,
+                template_id: templateId,
+                template_data: {
+                    first_name: firstName,
+                }, 
+                custom_headers: [
+                    {
+                        header: 'Reply-To',
+                        value: replyTo
+                    }
+                ]
+            };
+
+            fetch('https://api.smtp2go.com/v3/email/send', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Email sent:', data.data);
+                alert('Email sent successfully!');
+            })
+            .catch(error => {
+                console.error('Error sending email:', error);
+                alert('Error sending email. Please try again later.');
+            });
+        }
+    </script>
+</body>
+</html>
